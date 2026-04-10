@@ -1,19 +1,25 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <meta name="description" content="GrammarFixer 3000 — AI-powered grammar correction with style elevation and clarity mode." />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>GrammarFixer 3000</title>
 
-  <title>GrammarFixer 3000</title>
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="icon" href="/icon.png" />
 
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#0a0a0a" />
-  <link rel="icon" href="/icon.png" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-</head>
+  <body>
+    <div id="root"></div>
+
+    <!-- IMPORTANT -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
