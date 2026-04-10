@@ -1,101 +1,142 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
 
 export default function Home() {
   const [input, setInput] = useState("");
-  const [result, setResult] = useState<{
-    correctedText: string;
-    roast: string;
-  } | null>(null);
+  const [correctedText, setCorrectedText] = useState("");
+  const [elevatedText, setElevatedText] = useState("");
+  const [clarifiedText, setClarifiedText] = useState("");
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
 
-  const fixGrammarMutation = trpc.grammar.fix.useMutation({
-    onSuccess: (data) => setResult(data),
-    onError: (error) => {
-      toast.error(error.message || "Failed to fix grammar. Please try again.");
+  const fixMutation = trpc.grammar.fix.useMutation({
+    onSuccess: (data) => {
+      setCorrectedText(data.correctedText);
+      setError("");
     },
+    onError: (err) => setError(err.message || "Something went wrong."),
+  });
+
+  const elevateMutation = trpc.grammar.elevate.useMutation({
+    onSuccess: (data) => {
+      setElevatedText(data.elevatedText);
+      setError("");
+    },
+    onError: (err) => setError(err.message || "Elevate failed."),
+  });
+
+  const clarifyMutation = trpc.grammar.clarify.useMutation({
+    onSuccess: (data) => {
+      setClarifiedText(data.clarifiedText);
+      setError("");
+    },
+    onError: (err) => setError(err.message || "Clarity mode failed."),
   });
 
   const handleFix = () => {
-    if (!input.trim()) {
-      toast.error("Enter some text first.");
-      return;
-    }
-    fixGrammarMutation.mutate({ text: input });
+    if (!input.trim()) return;
+    setError("");
+    setCorrectedText("");
+    setElevatedText("");
+    setClarifiedText("");
+    fixMutation.mutate({ text: input });
   };
 
-  const handleCopy = async (text: string) => {
+  const handleElevate = () => {
+    if (!correctedText) return;
+    setElevatedText("");
+    elevateMutation.mutate({ text: correctedText });
+  };
+
+  const handleClarify = () => {
+    if (!correctedText) return;
+    setClarifiedText("");
+    clarifyMutation.mutate({ text: correctedText });
+  };
+
+  const handleCopy = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success("Copied.");
+      setCopied(label);
+      setTimeout(() => setCopied(null), 1500);
     } catch {
-      toast.error("Copy failed.");
+      setError("Copy failed.");
     }
   };
 
   const handleReset = () => {
     setInput("");
-    setResult(null);
-    fixGrammarMutation.reset();
+    setCorrectedText("");
+    setElevatedText("");
+    setClarifiedText("");
+    setError("");
+    fixMutation.reset();
+    elevateMutation.reset();
+    clarifyMutation.reset();
   };
 
-  const isLoading = fixGrammarMutation.isPending;
-  const charCount = input.length;
+  const isFixing = fixMutation.isPending;
   const maxChars = 5000;
+  const showResult = !!correctedText;
 
   return (
-    <div className="ink-shell">
-      <div className="ink-wrapper">
+    <div className="scene">
+      {/* atmospheric blooms */}
+      <div className="bloom bloom--amber" />
+      <div className="bloom bloom--teal" />
+      <div className="bloom bloom--center" />
 
-        {/* ── HEADER ── */}
-        <header className="ink-header">
-          <h1 className="ink-title">
-            <em>grammerfix</em>
-            <span className="ink-title-num">er3000</span>
+      <div className="stage">
+
+        {/* ── FILM TITLE ── */}
+        <header className="title-block">
+          <h1 className="title">
+            <span className="title-main">grammerfix</span>
+            <span className="title-suffix">er3000</span>
           </h1>
-          <div className="ink-rule" />
+          <span className="title-sub">version five</span>
+          <span className="title-line" />
         </header>
 
-        {/* ── CARD ── */}
-        <main className="ink-card">
+        {/* ── GLASS PANEL ── */}
+        <main className="glass">
 
           {/* INPUT */}
-          {!result && (
-            <div className="ink-body">
-              <label className="ink-label">your text</label>
+          {!showResult && (
+            <div className="input-area">
               <textarea
-                className="ink-textarea"
+                id="grammar-input"
+                className="input-field"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="paste something broken here…"
                 maxLength={maxChars}
-                disabled={isLoading}
-                rows={6}
+                disabled={isFixing}
+                rows={7}
               />
-              <div className="ink-field-footer">
-                {charCount > 0 ? (
-                  <span className="ink-counter">{charCount} / {maxChars}</span>
-                ) : (
-                  <span />
+              <div className="input-meta">
+                {input.length > 0 && (
+                  <span className="char-count">{input.length} / {maxChars}</span>
                 )}
               </div>
 
-              <div className="ink-actions">
+              <div className="btn-row">
                 <button
-                  className="ink-btn-fix"
+                  id="fix-btn"
+                  className="btn-primary"
                   onClick={handleFix}
-                  disabled={isLoading || !input.trim()}
+                  disabled={isFixing || !input.trim()}
                 >
-                  {isLoading ? (
-                    <span className="ink-loader">
-                      <span /><span /><span />
+                  {isFixing ? (
+                    <span className="dots">
+                      <i /><i /><i />
                     </span>
                   ) : (
                     "Fix Grammar →"
                   )}
                 </button>
-                {input && !isLoading && (
-                  <button className="ink-btn-ghost" onClick={handleReset}>
+                {input && !isFixing && (
+                  <button id="clear-btn" className="btn-ghost" onClick={handleReset}>
                     clear
                   </button>
                 )}
@@ -104,35 +145,97 @@ export default function Home() {
           )}
 
           {/* RESULT */}
-          {result && (
-            <div className="ink-result">
-              <p className="ink-result-label">corrected</p>
-              <p className="ink-result-text">{result.correctedText}</p>
-              <div className="ink-result-rule" />
-              <div className="ink-result-actions">
+          {showResult && (
+            <div className="result">
+              <p className="result-tag">corrected</p>
+              <p className="result-body">{correctedText}</p>
+              <div className="result-line" />
+              <div className="result-actions">
                 <button
-                  className="ink-btn-ghost"
-                  onClick={() => handleCopy(result.correctedText)}
+                  id="copy-btn"
+                  className="btn-ghost"
+                  onClick={() => handleCopy(correctedText, "corrected")}
                 >
-                  copy ↗
+                  {copied === "corrected" ? "copied ✓" : "copy ↗"}
                 </button>
-                <button className="ink-btn-ghost" onClick={handleReset}>
+                <span className="sep" />
+                <button id="reset-btn" className="btn-ghost" onClick={handleReset}>
                   try again
                 </button>
+                <span className="sep" />
+                <button
+                  id="elevate-btn"
+                  className="btn-ghost"
+                  onClick={handleElevate}
+                  disabled={elevateMutation.isPending}
+                >
+                  {elevateMutation.isPending ? "elevating…" : "elevate ✦"}
+                </button>
+                <span className="sep" />
+                <button
+                  id="clarify-btn"
+                  className="btn-ghost"
+                  onClick={handleClarify}
+                  disabled={clarifyMutation.isPending}
+                >
+                  {clarifyMutation.isPending ? "clarifying…" : "clarity ●"}
+                </button>
               </div>
+
+              {/* ELEVATED */}
+              {elevateMutation.isPending && !elevatedText && (
+                <div className="extra-panel">
+                  <p className="extra-tag">elevating</p>
+                  <span className="dots dots--inline"><i /><i /><i /></span>
+                </div>
+              )}
+              {elevatedText && (
+                <div className="extra-panel">
+                  <p className="extra-tag">elevated ✦</p>
+                  <p className="extra-body">{elevatedText}</p>
+                  <div className="extra-actions">
+                    <button
+                      id="copy-elevated-btn"
+                      className="btn-ghost"
+                      onClick={() => handleCopy(elevatedText, "elevated")}
+                    >
+                      {copied === "elevated" ? "copied ✓" : "copy ↗"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* CLARIFIED */}
+              {clarifyMutation.isPending && !clarifiedText && (
+                <div className="extra-panel">
+                  <p className="extra-tag">clarifying</p>
+                  <span className="dots dots--inline"><i /><i /><i /></span>
+                </div>
+              )}
+              {clarifiedText && (
+                <div className="extra-panel">
+                  <p className="extra-tag">clarity ●</p>
+                  <p className="extra-body">{clarifiedText}</p>
+                  <div className="extra-actions">
+                    <button
+                      id="copy-clarified-btn"
+                      className="btn-ghost"
+                      onClick={() => handleCopy(clarifiedText, "clarified")}
+                    >
+                      {copied === "clarified" ? "copied ✓" : "copy ↗"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {fixGrammarMutation.isError && (
-            <p className="ink-error">Something went wrong — try again.</p>
-          )}
+          {error && <p className="error-msg">{error}</p>}
         </main>
 
-        {/* ── FOOTER ── */}
-        <footer className="ink-footer">
-          <span>made by muzaib</span>
-          <span className="ink-footer-dot" />
-          <span>grammerfixer3000</span>
+        {/* ── CREDITS ── */}
+        <footer className="credits">
+          <span>made by muzaib <i className="dot" /> v5</span>
         </footer>
 
       </div>
