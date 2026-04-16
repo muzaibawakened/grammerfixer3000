@@ -81,100 +81,82 @@ export default function Home() {
 
   return (
     <div className="scene">
-      {/* atmospheric blooms */}
-      <div className="bloom bloom--amber" />
-      <div className="bloom bloom--teal" />
-      <div className="bloom bloom--center" />
-
       <div className="stage">
 
-        {/* ── FILM TITLE ── */}
-        <header className="title-block">
-          <h1 className="title">
-            <span className="title-main">grammerfix</span>
-            <span className="title-suffix">er3000</span>
-          </h1>
-          <span className="title-sub">version five</span>
-          <span className="title-line" />
+        {/* ── HERO TITLE ── */}
+        <header className="hero">
+          <span className="hero-top">fix my</span>
+          <span className="hero-mid">Damn</span>
+          <span className="hero-bot">Sentence<span className="hero-dot">.</span></span>
         </header>
 
-        {/* ── GLASS PANEL ── */}
-        <main className="glass">
+        {/* ── APP WINDOW ── */}
+        <div className="window">
 
-          {/* INPUT */}
-          {!showResult && (
-            <div className="input-area">
-              <textarea
-                id="grammar-input"
-                className="input-field"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="paste something broken here…"
-                maxLength={maxChars}
-                disabled={isFixing}
-                rows={7}
-              />
-              <div className="input-meta">
-                {input.length > 0 && (
-                  <span className="char-count">{input.length} / {maxChars}</span>
-                )}
-              </div>
-
-              <div className="btn-row">
-                <button
-                  id="fix-btn"
-                  className="btn-primary"
-                  onClick={handleFix}
-                  disabled={isFixing || !input.trim()}
-                >
-                  {isFixing ? (
-                    <span className="dots">
-                      <i /><i /><i />
-                    </span>
-                  ) : (
-                    "Fix Grammar →"
-                  )}
-                </button>
-                {input && !isFixing && (
-                  <button id="clear-btn" className="btn-ghost" onClick={handleReset}>
-                    clear
-                  </button>
-                )}
-              </div>
+          {/* TITLE BAR */}
+          <div className="window-bar">
+            <div className="window-dots">
+              <i /><i /><i />
             </div>
+            <span className="window-title">fmds</span>
+            {!showResult && input.length > 0 && (
+              <span className="window-meta">{input.length}/{maxChars}</span>
+            )}
+            {showResult && (
+              <span className="window-meta">corrected</span>
+            )}
+          </div>
+
+          {/* INPUT VIEW */}
+          {!showResult && (
+            <textarea
+              id="grammar-input"
+              className="editor"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="paste something broken here…"
+              maxLength={maxChars}
+              disabled={isFixing}
+            />
           )}
 
-          {/* RESULT */}
+          {/* RESULT VIEW */}
           {showResult && (
             <div className="result">
-              <p className="result-tag">corrected</p>
-              <p className="result-body">{correctedText}</p>
-              <div className="result-line" />
+              <div className="result-original">
+                <span className="result-label">original</span>
+                <p className="original-text">{input}</p>
+              </div>
+
+              <div className="result-corrected">
+                <span className="result-label">corrected</span>
+                <p className="result-body">{correctedText}</p>
+              </div>
+
+              <div className="result-divider" />
+
               <div className="result-actions">
                 <button
                   id="copy-btn"
-                  className="btn-ghost"
+                  className="btn-pill"
                   onClick={() => handleCopy(correctedText, "corrected")}
                 >
                   {copied === "corrected" ? "copied ✓" : "copy ↗"}
                 </button>
-                <span className="sep" />
-                <button id="reset-btn" className="btn-ghost" onClick={handleReset}>
+                <button id="reset-btn" className="btn-pill" onClick={handleReset}>
                   try again
                 </button>
-                <span className="sep" />
                 <button
                   id="elevate-btn"
-                  className="btn-ghost"
+                  className="btn-pill"
                   onClick={handleElevate}
                   disabled={elevateMutation.isPending}
                 >
                   {elevateMutation.isPending ? "elevating…" : "elevate ✦"}
                 </button>
-                <span className="sep" />
                 <button
                   id="clarify-btn"
-                  className="btn-ghost"
+                  className="btn-pill"
                   onClick={handleClarify}
                   disabled={clarifyMutation.isPending}
                 >
@@ -185,18 +167,18 @@ export default function Home() {
               {/* ELEVATED */}
               {elevateMutation.isPending && !elevatedText && (
                 <div className="extra-panel">
-                  <p className="extra-tag">elevating</p>
+                  <p className="extra-label">elevating</p>
                   <span className="dots dots--inline"><i /><i /><i /></span>
                 </div>
               )}
               {elevatedText && (
                 <div className="extra-panel">
-                  <p className="extra-tag">elevated ✦</p>
+                  <p className="extra-label">elevated ✦</p>
                   <p className="extra-body">{elevatedText}</p>
                   <div className="extra-actions">
                     <button
                       id="copy-elevated-btn"
-                      className="btn-ghost"
+                      className="btn-pill"
                       onClick={() => handleCopy(elevatedText, "elevated")}
                     >
                       {copied === "elevated" ? "copied ✓" : "copy ↗"}
@@ -208,18 +190,18 @@ export default function Home() {
               {/* CLARIFIED */}
               {clarifyMutation.isPending && !clarifiedText && (
                 <div className="extra-panel">
-                  <p className="extra-tag">clarifying</p>
+                  <p className="extra-label">clarifying</p>
                   <span className="dots dots--inline"><i /><i /><i /></span>
                 </div>
               )}
               {clarifiedText && (
                 <div className="extra-panel">
-                  <p className="extra-tag">clarity ●</p>
+                  <p className="extra-label">clarity ●</p>
                   <p className="extra-body">{clarifiedText}</p>
                   <div className="extra-actions">
                     <button
                       id="copy-clarified-btn"
-                      className="btn-ghost"
+                      className="btn-pill"
                       onClick={() => handleCopy(clarifiedText, "clarified")}
                     >
                       {copied === "clarified" ? "copied ✓" : "copy ↗"}
@@ -231,9 +213,37 @@ export default function Home() {
           )}
 
           {error && <p className="error-msg">{error}</p>}
-        </main>
+        </div>
 
-        {/* ── CREDITS ── */}
+        {/* ── ACTION BAR (outside window) ── */}
+        {!showResult && (
+          <div className="action-bar">
+            <button
+              id="fix-btn"
+              className="btn-fix"
+              onClick={handleFix}
+              disabled={isFixing || !input.trim()}
+            >
+              {isFixing ? (
+                <span className="dots">
+                  <i /><i /><i />
+                </span>
+              ) : (
+                <>
+                  <span className="btn-fix-icon">⚡</span>
+                  Fix Grammar
+                </>
+              )}
+            </button>
+            {input && !isFixing && (
+              <button id="clear-btn" className="btn-clear" onClick={handleReset}>
+                clear
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* ── FOOTER ── */}
         <footer className="credits">
           <span>made by muzaib <i className="dot" /> v5</span>
         </footer>
