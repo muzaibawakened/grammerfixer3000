@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────
    FONTS
    ───────────────────────────────────────────── */
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Geist+Mono:wght@300;400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Geist+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap");
 
 @import "tailwindcss";
 
@@ -11,18 +11,21 @@
 :root {
   --accent: #C9A87C;
   --accent-hover: #D6BA94;
-  --accent-glow: rgba(201, 168, 124, 0.12);
-  --accent-subtle: rgba(201, 168, 124, 0.05);
-  --card: #141416;
-  --card-border: #222225;
-  --bar-bg: #1A1A1D;
-  --bg: #0B0B0D;
-  --text: #E8E6E3;
-  --text-dim: #2E2D2A;
-  --text-muted: #706E69;
-  --divider: #1C1C1F;
+  --accent-glow: rgba(201, 168, 124, 0.14);
+  --accent-subtle: rgba(201, 168, 124, 0.06);
+  --accent-pill: rgba(201, 168, 124, 0.08);
+  --accent-pill-border: rgba(201, 168, 124, 0.18);
+  --card: #1E1E22;
+  --card-border: #333338;
+  --bar-bg: #26262A;
+  --bg: #151517;
+  --text: #ECECEA;
+  --text-dim: #4A4944;
+  --text-muted: #908E86;
+  --divider: #2A2A2E;
   --serif: "Cormorant Garamond", Georgia, serif;
   --mono: "Geist Mono", "SF Mono", monospace;
+  --display: "Outfit", sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -84,15 +87,16 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
   animation: heroIn 0.8s var(--ease) both;
 }
 
-/* "fix my" — small, spaced, monospace */
+/* "fix my" — serif italic to match Damn & Sentence */
 .hero-top {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
+  font-family: var(--serif);
+  font-size: clamp(18px, 4vw, 24px);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  text-align: center;
+  margin-bottom: 2px;
 }
 
 /* "Damn" — the hero word */
@@ -208,13 +212,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
 }
 
 .window-title {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
-  opacity: 0.5;
+  opacity: 0.6;
+}
+
+.window-title-accent {
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.08em;
 }
 
 .window-meta {
@@ -276,6 +285,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
   justify-content: center;
   gap: 8px;
   height: 52px;
+  min-height: 52px;
   background: var(--accent);
   color: #0B0B0D;
   font-family: var(--mono);
@@ -346,6 +356,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
   align-items: center;
   justify-content: center;
   height: 52px;
+  min-height: 52px;
   background: transparent;
   border: 1px solid var(--card-border);
   color: var(--text-muted);
@@ -497,27 +508,44 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
 .btn-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: transparent;
-  border: 1px solid var(--card-border);
+  gap: 6px;
+  background: var(--accent-pill);
+  border: 1px solid var(--accent-pill-border);
   border-radius: 999px;
-  padding: 9px 18px;
+  padding: 10px 20px;
   font-family: var(--mono);
   font-size: 0.74rem;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.04em;
-  color: var(--text-muted);
+  color: var(--text);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: all 0.2s var(--ease);
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+  transition: color 0.25s, border-color 0.25s, transform 0.15s, box-shadow 0.25s;
+}
+
+/* sweep fill on hover */
+.btn-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(135deg, rgba(201,168,124,0.15) 0%, rgba(201,168,124,0.08) 100%);
+  opacity: 0;
+  transition: opacity 0.25s;
 }
 
 .btn-pill:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: var(--accent-subtle);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(201,168,124,0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(201,168,124,0.14);
+}
+
+.btn-pill:hover::before {
+  opacity: 1;
 }
 
 .btn-pill:active {
@@ -527,16 +555,20 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
 }
 
 .btn-pill:disabled {
-  opacity: 0.2;
+  opacity: 0.25;
   cursor: not-allowed;
 }
 
 .btn-pill:disabled:hover {
-  border-color: var(--card-border);
-  color: var(--text-muted);
-  background: transparent;
+  border-color: var(--accent-pill-border);
+  color: var(--text);
+  background: var(--accent-pill);
   transform: none;
   box-shadow: none;
+}
+
+.btn-pill:disabled:hover::before {
+  opacity: 0;
 }
 
 /* ─────────────────────────────────────────────
@@ -592,7 +624,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
   font-size: 9px;
   font-weight: 400;
   letter-spacing: 0.2em;
-  color: var(--text-dim);
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
 .credits span {
@@ -629,15 +662,16 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
   .scene { padding: 0 12px 60px; }
   .stage { padding-top: 24px; }
   .hero { margin-bottom: 24px; }
-  .hero-top { font-size: 9px; }
+  .hero-top { font-size: 10px; letter-spacing: 0.3em; }
   .hero-mid { font-size: clamp(56px, 18vw, 80px); }
   .hero-bot { font-size: clamp(22px, 6vw, 32px); }
-  .window-bar { padding: 14px 18px; gap: 12px; }
+  .window-bar { padding: 14px 16px; gap: 10px; }
+  .window-title { font-size: 10px; }
   .window-dots i { width: 9px; height: 9px; }
   .editor { min-height: 200px; font-size: 16px; padding: 22px 20px; }
   .action-bar { flex-direction: column; gap: 10px; }
-  .btn-fix { width: 100%; }
-  .btn-clear { width: 100%; justify-content: center; }
+  .btn-fix { width: 100%; height: 52px; min-height: 52px; }
+  .btn-clear { width: 100%; min-height: 52px; height: 52px; justify-content: center; }
   .result { padding: 20px 18px; }
   .result-original { padding: 14px 16px; }
   .result-actions { gap: 8px; }

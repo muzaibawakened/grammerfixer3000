@@ -98,7 +98,7 @@ export default function Home() {
             <div className="window-dots">
               <i /><i /><i />
             </div>
-            <span className="window-title">fmds</span>
+            <span className="window-title">Fix My <span className="window-title-accent">DAMN</span> Sentence</span>
             {!showResult && input.length > 0 && (
               <span className="window-meta">{input.length}/{maxChars}</span>
             )}
@@ -245,7 +245,7 @@ export default function Home() {
 
         {/* ── FOOTER ── */}
         <footer className="credits">
-          <span>made by muzaib <i className="dot" /> v5</span>
+          <span>made by muzaib <i className="dot" /> v6</span>
         </footer>
 
       </div>
