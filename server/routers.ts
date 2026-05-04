@@ -2,6 +2,7 @@ import { publicProcedure, router } from "./trpc";
 import { z } from "zod";
 
 const MIMO_API_KEY = process.env.MIMO_API_KEY ?? process.env.GEMINI_API_KEY ?? "";
+const MIMO_BASE_URL = process.env.MIMO_BASE_URL ?? "https://token-plan.xiaomimimo.com/v1";
 
 /* ── Mimo API caller with retry ──────────────────────────── */
 
@@ -13,7 +14,7 @@ async function callMimo(prompt: string, retries = 2): Promise<string> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const res = await fetch(
-        "https://api.xiaomimimo.com/v1/chat/completions",
+        `${MIMO_BASE_URL}/chat/completions`,
         {
           method: "POST",
           headers: { 
