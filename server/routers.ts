@@ -2,7 +2,7 @@ import { publicProcedure, router } from "./trpc";
 import { z } from "zod";
 
 const MIMO_API_KEY = process.env.MIMO_API_KEY ?? process.env.GEMINI_API_KEY ?? "";
-const MIMO_BASE_URL = process.env.MIMO_BASE_URL ?? "https://token-plan.xiaomimimo.com/v1";
+const MIMO_BASE_URL = process.env.MIMO_BASE_URL ?? "https://api.xiaomimimo.com/v1";
 
 /* ── Mimo API caller with retry ──────────────────────────── */
 
