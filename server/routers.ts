@@ -19,8 +19,7 @@ async function callMimo(prompt: string, retries = 2): Promise<string> {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${MIMO_API_KEY}`,
-            "api-key": MIMO_API_KEY
+            "Authorization": `Bearer ${MIMO_API_KEY}`
           },
           body: JSON.stringify({
             model: "mimo-v2.5-pro",
