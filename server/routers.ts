@@ -1,29 +1,32 @@
 import { publicProcedure, router } from "./trpc";
 import { z } from "zod";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? "";
+const MIMO_API_KEY = process.env.MIMO_API_KEY ?? process.env.GEMINI_API_KEY ?? "";
 
-/* ── Gemini API caller with retry ──────────────────────────── */
+/* ── Mimo API caller with retry ──────────────────────────── */
 
-async function callGemini(prompt: string, retries = 2): Promise<string> {
-  if (!GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY is not set. Add it to your .env file.");
+async function callMimo(prompt: string, retries = 2): Promise<string> {
+  if (!MIMO_API_KEY) {
+    throw new Error("MIMO_API_KEY is not set. Add it to your .env file.");
   }
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        "https://api.xiaomimimo.com/v1/chat/completions",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${MIMO_API_KEY}`,
+            "api-key": MIMO_API_KEY
+          },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 2048,
-              responseMimeType: "application/json",
-            },
+            model: "mimo-v2.5-pro",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 1.0,
+            max_completion_tokens: 2048,
+            response_format: { type: "json_object" }
           }),
         }
       );
@@ -31,7 +34,7 @@ async function callGemini(prompt: string, retries = 2): Promise<string> {
       if (!res.ok) {
         const status = res.status;
         const body = await res.text();
-        console.error(`Gemini API error (attempt ${attempt + 1}): ${status}`, body);
+        console.error(`Mimo API error (attempt ${attempt + 1}): ${status}`, body);
 
         if (status === 429) {
           if (attempt < retries) {
@@ -45,16 +48,16 @@ async function callGemini(prompt: string, retries = 2): Promise<string> {
             await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
             continue;
           }
-          throw new Error("Gemini is temporarily unavailable, try again");
+          throw new Error("Mimo is temporarily unavailable, try again");
         }
-        throw new Error(`Gemini API error: ${body.slice(0, 200)}`);
+        throw new Error(`Mimo API error: ${body.slice(0, 200)}`);
       }
 
       const data = (await res.json()) as any;
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+      const text = data?.choices?.[0]?.message?.content ?? "";
 
       if (!text) {
-        console.error("Empty Gemini response:", JSON.stringify(data).slice(0, 500));
+        console.error("Empty Mimo response:", JSON.stringify(data).slice(0, 500));
         if (attempt < retries) continue;
         throw new Error("Empty response from AI");
       }
@@ -72,7 +75,7 @@ async function callGemini(prompt: string, retries = 2): Promise<string> {
 
 /* ── JSON parser with fallback ─────────────────────────────── */
 
-function parseGeminiJSON(raw: string, fields: string[]): Record<string, string> {
+function parseAIJSON(raw: string, fields: string[]): Record<string, string> {
   const cleaned = raw
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
@@ -136,24 +139,24 @@ export const appRouter = router({
     fix: publicProcedure
       .input(z.object({ text: z.string().min(1).max(5000) }))
       .mutation(async ({ input }) => {
-        const raw = await callGemini(grammarPrompt(input.text));
-        const parsed = parseGeminiJSON(raw, ["correctedText", "roast"]);
+        const raw = await callMimo(grammarPrompt(input.text));
+        const parsed = parseAIJSON(raw, ["correctedText", "roast"]);
         return { correctedText: parsed.correctedText, roast: parsed.roast };
       }),
 
     elevate: publicProcedure
       .input(z.object({ text: z.string().min(1).max(5000) }))
       .mutation(async ({ input }) => {
-        const raw = await callGemini(elevatePrompt(input.text));
-        const parsed = parseGeminiJSON(raw, ["elevatedText"]);
+        const raw = await callMimo(elevatePrompt(input.text));
+        const parsed = parseAIJSON(raw, ["elevatedText"]);
         return { elevatedText: parsed.elevatedText };
       }),
 
     clarify: publicProcedure
       .input(z.object({ text: z.string().min(1).max(5000) }))
       .mutation(async ({ input }) => {
-        const raw = await callGemini(clarityPrompt(input.text));
-        const parsed = parseGeminiJSON(raw, ["clarifiedText"]);
+        const raw = await callMimo(clarityPrompt(input.text));
+        const parsed = parseAIJSON(raw, ["clarifiedText"]);
         return { clarifiedText: parsed.clarifiedText };
       }),
   }),
